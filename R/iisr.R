@@ -1,9 +1,6 @@
 
 #' Read IIS log files from a directory
 #'
-#' @importFrom magrittr %>%
-#' @name %>%
-#' @rdname pipe
 #' @export
 read.iis <- function(dir,
                      extension="log",
