@@ -42,7 +42,7 @@ read.iis <- function(dir,
     log_filenames = list.files(path, pattern = paste0("*.", extension))
 
     if(!is.null(filenames)){
-      log_filenames = log_filenames[stringr::str_detect(log_filenames,filenames)]
+      log_filenames = log_filenames[stringr::str_detect(log_filenames, paste("\\b",filenames,"\\b", sep="", collapse = "|"))]
     }
 
     for (filename in log_filenames) {
