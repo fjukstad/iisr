@@ -5,7 +5,8 @@
 read.iis <- function(dir,
                      extension="log",
                      filenames = NULL,
-                     max_log_files_to_read=100) {
+                     max_log_files_to_read=100,
+                     services=NULL) {
 
   columns = c(
     'date',
@@ -59,6 +60,10 @@ read.iis <- function(dir,
         dplyr::mutate(server = folder) %>%
         dplyr::mutate(filename = fullpath) %>%
         dplyr::filter(!is.na(time_taken))
+
+      if(!is.null(services)){
+        temp_log = temp_log %>%  dplyr::filter(stringr::str_detect(cs_uri_stem, pattern=paste(services, collapse="|")))
+      }
 
       log = dplyr::bind_rows(log, temp_log)
 

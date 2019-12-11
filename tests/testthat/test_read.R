@@ -22,10 +22,25 @@ test_that("read reads an example log file with a filename filter", {
 
   filenames = c("u_ex171118-sample")
 
-  log =  read.iis(folder, filenames, extension="txt")
+  log =  read.iis(folder, filenames=filenames, extension="txt")
 
   expect_is(log, "data.frame") # is a data frame
   expect_equal(dim(log), c(142,21)) # correct dimensions
+  expect_equal(unique(log$server), "server1") # server name is correct
+
+})
+test_that("read reads an example log file with a service filter", {
+
+  base_path = system.file(package="iisr")
+
+  folder = file.path(base_path, "testdata")
+
+  services = c("adpar")
+
+  log =  read.iis(folder, services=services, extension="txt")
+
+  expect_is(log, "data.frame") # is a data frame
+  expect_equal(dim(log), c(2,21)) # correct dimensions
   expect_equal(unique(log$server), "server1") # server name is correct
 
 })
