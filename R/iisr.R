@@ -6,7 +6,7 @@ read.iis <- function(dir,
                      extension="log",
                      filenames = NULL,
                      max_log_files_to_read=100,
-                     services=NULL
+                     services=NULL,
                      skip = 4) {
 
   columns = c(
