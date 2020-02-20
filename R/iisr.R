@@ -6,7 +6,8 @@ read.iis <- function(dir,
                      extension="log",
                      filenames = NULL,
                      max_log_files_to_read=100,
-                     services=NULL) {
+                     services=NULL
+                     skip = 4) {
 
   columns = c(
     'date',
@@ -54,7 +55,7 @@ read.iis <- function(dir,
 
       fullpath = file.path(path, filename)
       temp_log = readr::read_delim(fullpath,
-                            skip = 4,
+                            skip = skip,
                             col_names = columns,
                             delim = " ") %>%
         dplyr::mutate(server = folder) %>%
