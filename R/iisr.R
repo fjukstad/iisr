@@ -1,36 +1,14 @@
 
+
 #' Read IIS log files from a directory
 #'
 #' @export
 read.iis <- function(dir,
-                     extension="log",
+                     extension = "log",
                      filenames = NULL,
-                     max_log_files_to_read=100,
-                     services=NULL,
+                     max_log_files_to_read = 100,
+                     uri_stem = NULL,
                      skip = 4) {
-
-  columns = c(
-    'date',
-    'time',
-    's_ip',
-    'cs_method',
-    'cs_uri_stem',
-    'cs_uri_query',
-    's_port',
-    'cs_username',
-    'c_ip',
-    'cs_User_Agent_',
-    'cs_Referer_',
-    'sc_status',
-    'sc_substatus',
-    'sc_win32_status',
-    'time_taken',
-    'local_datetime',
-    'time_taken_s',
-    'datetimeStarted',
-    'datetimeEnded'
-  )
-
   collected_log_files = 0
   log = NULL
 
@@ -38,7 +16,6 @@ read.iis <- function(dir,
   folders = list.files(path)
 
   for (folder in folders) {
-
     path = file.path(dir, folder)
 
     log_filenames = list.files(path, pattern = paste0("*.", extension))
@@ -48,23 +25,16 @@ read.iis <- function(dir,
     # }
 
     for (filename in log_filenames) {
+      if (collected_log_files >= max_log_files_to_read) {
+        break
 
-      if(collected_log_files >= max_log_files_to_read){
-        break;
       }
 
       fullpath = file.path(path, filename)
-      temp_log = readr::read_delim(fullpath,
-                            skip = skip,
-                            col_names = columns,
-                            delim = " ") %>%
-        dplyr::mutate(server = folder) %>%
-        dplyr::mutate(filename = fullpath) %>%
-        dplyr::filter(!is.na(time_taken))
 
-      if(!is.null(services)){
-        temp_log = temp_log %>%  dplyr::filter(stringr::str_detect(cs_uri_stem, pattern=paste(services, collapse="|")))
-      }
+      temp_log = read.single_iis_logfile(fullpath, uri_stem, skip)
+
+      temp_log = temp_log %>% dplyr::mutate(server = folder)
 
       log = dplyr::bind_rows(log, temp_log)
 
@@ -73,5 +43,55 @@ read.iis <- function(dir,
     }
   }
 
-  return(log);
+  return(log)
+
+}
+
+
+
+#' Reads a single IIS log file
+#'
+#' @export
+read.single_iis_logfile <- function(filename,
+                                    uri_stem = NULL,
+                                    skip = 4,
+                                    columns = NULL) {
+  # default iis columns
+  if(is.null(columns)) {
+    columns = c(
+      'date',
+      'time',
+      's_ip',
+      'cs_method',
+      'cs_uri_stem',
+      'cs_uri_query',
+      's_port',
+      'cs_username',
+      'c_ip',
+      'cs_User_Agent_',
+      'cs_Referer_',
+      'sc_status',
+      'sc_substatus',
+      'sc_win32_status',
+      'time_taken',
+      'local_datetime',
+      'time_taken_s',
+      'datetimeStarted',
+      'datetimeEnded'
+    )
+  }
+
+  log = readr::read_delim(filename,
+                          skip = skip,
+                          col_names = columns,
+                          delim = " ") %>%
+    dplyr::mutate(filename = filename)
+  #%>%
+  #  dplyr::filter(!is.na(time_taken))
+
+  if (!is.null(uri_stem)) {
+    log = log %>%  dplyr::filter(stringr::str_detect(cs_uri_stem, pattern =
+                                                       paste(uri_stem, collapse = "|")))
+  }
+  return(log)
 }
