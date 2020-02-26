@@ -8,7 +8,8 @@ read.iis <- function(dir,
                      filenames = NULL,
                      max_log_files_to_read = 100,
                      uri_stem = NULL,
-                     skip = 4) {
+                     skip = 4,
+                     columns = NULL) {
   collected_log_files = 0
   log = NULL
 
@@ -32,7 +33,7 @@ read.iis <- function(dir,
 
       fullpath = file.path(path, filename)
 
-      temp_log = read.single_iis_logfile(fullpath, uri_stem, skip)
+      temp_log = read.single_iis_logfile(fullpath, uri_stem, skip, columns = columns)
 
       temp_log = temp_log %>% dplyr::mutate(server = folder)
 
