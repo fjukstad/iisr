@@ -12,6 +12,8 @@ Imports:
   magrittr,
   dplyr,
   readr,
-  stringr
+  stringr,
+  lubridate
 Suggests: 
     testthat
+RoxygenNote: 7.1.0
